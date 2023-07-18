@@ -55,12 +55,30 @@ class AuthController extends Controller
             // Adicionar Token Gereado na tabela de Tokens ativos do Usuário.
             ActiveToken::create(['user_id' => $user->id, 'token' => $token]);
 
-            return response()->json(compact('token'));
+            return response()->json(['token' => $token, 'user' => $user]);
         } catch (ValidationException $e) {
             return new JsonResponse(
                 ['errors' => $e->errors()],
                 JsonResponse::HTTP_UNPROCESSABLE_ENTITY
             );
         }
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json($request->user);
+    }
+
+    public function logout(Request $request)
+    {
+        $token = explode(' ', $request->header('Authorization'))[1];
+        $user = $request->user;
+        $tokensDoUsuario = ActiveToken::where('user_id', $user->id)->first();
+        if (!empty($tokensDoUsuario)) {
+            $tokensDoUsuario->delete();
+        }
+        BlackListToken::create(['token' => $token]);
+
+        return response()->json(['message' => 'Logout efetuado com sucesso']);
     }
 }

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ErrorController;
-use app\Http\Middleware\FirebaseJwtMiddleware;
+use App\Http\Middleware\FirebaseJwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,15 +16,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
 Route::post('/log-error', [ErrorController::class, 'store']);
 Route::delete('/remove-linha-logs/{data}', [ErrorController::class, 'removeLinhaLogs']);
 Route::delete('/log-error/{data}', [ErrorController::class, 'destroy']);
 
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::middleware([FirebaseJwtMiddleware::class])->group(function (){
-
+Route::middleware([FirebaseJwtMiddleware::class])->prefix('/auth')->group(function (){
+    Route::post('me', [AuthController::class, 'me']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    /*Route::post('refresh', [AuthController::class, 'refresh']);*/
 });
